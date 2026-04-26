@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><span>Command</span> Dashboard</h1>
+      <div class="live-time mt-1"><i class="fa fa-clock me-1"></i><span id="live-time"></span></div>
+    </div>
+    <a href="{{ url_for('add_violation') }}" class="btn-amber">
+      <i class="fa fa-plus"></i> Log Violation
+    </a>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3 fade-up">
+      <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="fa fa-file-lines"></i></div>
+        <div>
+          <div class="stat-num" data-target="{{ total }}">0</div>
+          <div class="stat-label">Total Violations</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 fade-up delay-1">
+      <div class="stat-card red">
+        <div class="stat-icon red"><i class="fa fa-circle-exclamation"></i></div>
+        <div>
+          <div class="stat-num" data-target="{{ unpaid_count }}">0</div>
+          <div class="stat-label">Unpaid Challans</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 fade-up delay-2">
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="fa fa-circle-check"></i></div>
+        <div>
+          <div class="stat-num" data-target="{{ paid_count }}">0</div>
+          <div class="stat-label">Paid Challans</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 fade-up delay-3">
+      <div class="stat-card amber">
+        <div class="stat-icon amber"><i class="fa fa-indian-rupee-sign"></i></div>
+        <div>
+          <div class="stat-num" data-target="{{ collected|int }}" data-prefix="₹" data-float="true">₹0</div>
+          <div class="stat-label">Fine Collected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Violations -->
+  <div class="card fade-up delay-2">
+    <div class="card-body" style="padding: 0;">
+      <div style="padding: 22px 28px 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="section-title" style="margin: 0; flex: 1;">
+          <i class="fa fa-clock-rotate-left" style="color: var(--amber);"></i> Recent Violations
+        </div>
+        <a href="{{ url_for('history') }}" class="btn-blue-sm">View All <i class="fa fa-arrow-right"></i></a>
+      </div>
+      {% if recent %}
+      <div class="table-wrap" style="border: none; border-radius: 0; border-top: 1px solid var(--border);">
+        <table class="dark-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vehicle</th>
+              <th>Violation</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Fine</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in recent %}
+            <tr>
+              <td style="color: var(--muted); font-size: 13px;">{{ v.id }}</td>
+              <td class="vehicle-num">{{ v.vehicle_number }}</td>
+              <td style="font-size: 13px;">{{ v.violation_type }}</td>
+              <td style="color: var(--muted); font-size: 13px;">{{ v.location }}</td>
+              <td style="color: var(--muted); font-size: 13px;">{{ v.date.strftime('%d %b %Y') }}</td>
+              <td style="font-weight: 600; color: var(--red);">₹{{ '{:,.0f}'.format(v.fine_amount) }}</td>
+              <td>
+                {% if v.status == 'Paid' %}
+                <span class="badge-paid"><i class="fa fa-check"></i> Paid</span>
+                {% else %}
+                <span class="badge-unpaid"><i class="fa fa-clock"></i> Unpaid</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('challan', violation_id=v.id) }}" class="btn-blue-sm"><i class="fa fa-receipt"></i></a>
+                  {% if v.status == 'Unpaid' %}
+                  <form method="POST" action="{{ url_for('mark_paid', violation_id=v.id) }}" class="mark-paid-form" style="display:inline;">
+                    <button type="submit" class="btn-green-sm"><i class="fa fa-check"></i></button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fa fa-file-circle-plus d-block"></i>
+        <h5>No violations logged yet</h5>
+        <p>Start by logging your first violation</p>
+        <a href="{{ url_for('add_violation') }}" class="btn-amber mt-3" style="display: inline-flex;">
+          <i class="fa fa-plus"></i> Add Violation
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<a href="{{ url_for('add_violation') }}" class="fab" title="Add Violation">
+  <i class="fa fa-plus"></i>
+</a>
+{% endblock %}

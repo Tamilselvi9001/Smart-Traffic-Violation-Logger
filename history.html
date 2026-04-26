@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Violation History{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+  <div class="page-header">
+    <h1 class="page-title"><span>Violation</span> History</h1>
+    <a href="{{ url_for('add_violation') }}" class="btn-amber">
+      <i class="fa fa-plus"></i> Log Violation
+    </a>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="search-card fade-up">
+    <form method="GET" action="{{ url_for('history') }}">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="field-label">Search Vehicle</label>
+          <div class="search-wrap">
+            <i class="search-icon fa fa-magnifying-glass"></i>
+            <input type="text" name="search" class="search-input"
+                   placeholder="Enter vehicle number..." value="{{ search }}">
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="field-label">Status</label>
+          <select name="status" class="filter-select">
+            <option value="">All</option>
+            <option value="Unpaid" {% if status_filter == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+            <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="field-label">Type</label>
+          <select name="type" class="filter-select">
+            <option value="">All Types</option>
+            {% for vtype in violation_types %}
+            <option value="{{ vtype }}" {% if type_filter == vtype %}selected{% endif %}>{{ vtype }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="field-label">From Date</label>
+          <input type="date" name="date_from" class="filter-select" value="{{ date_from }}">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="field-label">&nbsp;</label>
+          <div class="d-flex gap-2">
+            <input type="date" name="date_to" class="filter-select" value="{{ date_to }}" placeholder="To">
+            <button type="submit" class="btn-amber" style="padding: 10px 16px; white-space: nowrap;">
+              <i class="fa fa-filter"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results -->
+  <div class="card fade-up delay-1">
+    <div class="card-body" style="padding: 0;">
+      <div style="padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 13px; color: var(--muted);">
+          <i class="fa fa-list me-1"></i>
+          Showing <strong style="color: var(--text);">{{ violations|length }}</strong> record(s)
+          {% if search %} for <strong style="color: var(--amber);">"{{ search }}"</strong>{% endif %}
+        </div>
+        {% if search or status_filter or type_filter or date_from or date_to %}
+        <a href="{{ url_for('history') }}" class="btn-red-sm">
+          <i class="fa fa-xmark"></i> Clear Filters
+        </a>
+        {% endif %}
+      </div>
+      {% if violations %}
+      <div class="table-wrap" style="border: none; border-radius: 0;">
+        <table class="dark-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vehicle No.</th>
+              <th>Violation</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Fine (₹)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in violations %}
+            <tr>
+              <td style="color: var(--muted); font-size: 12px;">{{ v.id }}</td>
+              <td class="vehicle-num">{{ v.vehicle_number }}</td>
+              <td style="font-size: 13px;">{{ v.violation_type }}</td>
+              <td style="color: var(--muted); font-size: 13px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ v.location }}</td>
+              <td style="font-size: 13px; white-space: nowrap;">{{ v.date.strftime('%d %b %Y') }}</td>
+              <td style="font-weight: 700; color: var(--red);">{{ '{:,.0f}'.format(v.fine_amount) }}</td>
+              <td>
+                {% if v.status == 'Paid' %}
+                <span class="badge-paid"><i class="fa fa-check"></i> Paid</span>
+                {% else %}
+                <span class="badge-unpaid"><i class="fa fa-clock"></i> Unpaid</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a href="{{ url_for('challan', violation_id=v.id) }}" class="btn-blue-sm">
+                    <i class="fa fa-receipt"></i> Challan
+                  </a>
+                  <a href="{{ url_for('status', violation_id=v.id) }}" class="btn-blue-sm" target="_blank">
+                    <i class="fa fa-qrcode"></i>
+                  </a>
+                  {% if v.status == 'Unpaid' %}
+                  <form method="POST" action="{{ url_for('mark_paid', violation_id=v.id) }}" class="mark-paid-form" style="display:inline;">
+                    <button type="submit" class="btn-green-sm">
+                      <i class="fa fa-check"></i> Paid
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fa fa-folder-open d-block"></i>
+        <h5>No violations found</h5>
+        <p>Try adjusting your filters or search term</p>
+        <a href="{{ url_for('add_violation') }}" class="btn-amber mt-3" style="display: inline-flex;">
+          <i class="fa fa-plus"></i> Log First Violation
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<a href="{{ url_for('add_violation') }}" class="fab" title="Add Violation">
+  <i class="fa fa-plus"></i>
+</a>
+{% endblock %}

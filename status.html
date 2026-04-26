@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Challan Status — {{ v.vehicle_number }}{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="status-page">
+  <div class="status-card">
+    <!-- Header -->
+    <div class="status-header">
+      <div class="status-shield"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="status-brand">TrafficLog</div>
+      <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; margin-bottom: 12px;">
+        Official Challan Status
+      </div>
+      <div class="status-vehicle">{{ v.vehicle_number }}</div>
+      <div style="font-size: 12px; color: var(--muted);">Challan #{{ '%04d'|format(v.id) }}</div>
+    </div>
+
+    <!-- Body -->
+    <div class="status-body">
+      <div class="status-row">
+        <span class="status-key"><i class="fa fa-triangle-exclamation" style="color: var(--amber);"></i> Violation</span>
+        <span class="status-val">{{ v.violation_type }}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key"><i class="fa fa-location-dot" style="color: var(--blue);"></i> Location</span>
+        <span class="status-val" style="font-size: 12px; max-width: 180px; text-align: right;">{{ v.location }}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key"><i class="fa fa-calendar" style="color: var(--muted);"></i> Date</span>
+        <span class="status-val">{{ v.date.strftime('%d %b %Y') }}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key"><i class="fa fa-indian-rupee-sign" style="color: var(--red);"></i> Fine</span>
+        <span class="status-val" style="color: var(--red); font-family: 'Syne', sans-serif; font-size: 1.2rem;">
+          ₹{{ '{:,.0f}'.format(v.fine_amount) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Status Footer -->
+    <div class="status-footer">
+      {% if v.status == 'Paid' %}
+      <div class="status-pill-paid">
+        <i class="fa fa-circle-check"></i> FINE PAID
+      </div>
+      <p style="font-size: 12px; color: var(--green); margin-top: 8px; font-weight: 500;">
+        <i class="fa fa-check me-1"></i> Payment received. Thank you.
+      </p>
+      {% else %}
+      <div class="status-pill-unpaid">
+        <i class="fa fa-circle-exclamation"></i> FINE UNPAID
+      </div>
+      <p class="status-warning mt-2">
+        <i class="fa fa-triangle-exclamation me-1"></i>
+        Please pay immediately to avoid further penalties.
+      </p>
+      {% endif %}
+      <p class="powered-by mt-3">Powered by <span>TrafficLog</span></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

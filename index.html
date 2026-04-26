@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-content">
+        <div class="hero-badge fade-up">
+          <i class="fa fa-shield-halved"></i> Digital Traffic Authority
+        </div>
+        <h1 class="hero-title fade-up delay-1">
+          Smart <span class="accent">Traffic</span><br>Violation<br>Management
+        </h1>
+        <p class="hero-sub fade-up delay-2">
+          A modern digital platform for traffic authorities to log, track, and manage road violations with QR-enabled challans and real-time payment status.
+        </p>
+        <div class="d-flex gap-3 flex-wrap fade-up delay-3">
+          <a href="{{ url_for('login') }}" class="btn-amber">
+            <i class="fa fa-lock"></i> Officer Login
+          </a>
+          <a href="{{ url_for('status', violation_id=1) }}" class="btn-outline-amber">
+            <i class="fa fa-qrcode"></i> Check Challan
+          </a>
+        </div>
+        <div class="hero-stats fade-up delay-4">
+          <div>
+            <div class="hero-stat-num">{{ total }}</div>
+            <div class="hero-stat-label">Violations Logged</div>
+          </div>
+          <div>
+            <div class="hero-stat-num" style="color: var(--red);">{{ unpaid }}</div>
+            <div class="hero-stat-label">Pending Challans</div>
+          </div>
+          <div>
+            <div class="hero-stat-num" style="color: var(--green);">{{ paid }}</div>
+            <div class="hero-stat-label">Fines Cleared</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-end">
+        <div style="position: relative; width: 400px; height: 400px;">
+          <!-- Decorative shield visual -->
+          <div style="
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+          "></div>
+          <div style="
+            width: 380px; height: 380px;
+            border: 1px solid rgba(245,158,11,0.08);
+            border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+          "></div>
+          <div style="
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          ">
+            <i class="fa-solid fa-shield-halved" style="font-size: 9rem; color: rgba(245,158,11,0.25);"></i>
+            <div style="
+              font-family: 'Syne', sans-serif;
+              font-size: 0.85rem; font-weight: 700;
+              color: rgba(245,158,11,0.5);
+              letter-spacing: 4px;
+              text-transform: uppercase;
+              margin-top: 12px;
+            ">TrafficLog System</div>
+          </div>
+          <!-- Floating cards -->
+          <div style="
+            position: absolute; top: 10px; right: 0;
+            background: rgba(17,24,39,0.9);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 12px; padding: 14px 18px;
+            backdrop-filter: blur(10px);
+          ">
+            <div style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Latest Challan</div>
+            <div style="font-family: 'Syne', sans-serif; font-weight: 700; color: var(--amber); font-size: 13px; margin-top: 4px;">#{{ total }}</div>
+          </div>
+          <div style="
+            position: absolute; bottom: 30px; left: 0;
+            background: rgba(17,24,39,0.9);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px; padding: 14px 18px;
+            backdrop-filter: blur(10px);
+          ">
+            <div style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Compliance Rate</div>
+            <div style="font-family: 'Syne', sans-serif; font-weight: 700; color: var(--green); font-size: 13px; margin-top: 4px;">
+              {{ ((paid / total * 100)|round(1) if total > 0 else 0) }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="padding: 80px 0; background: var(--bg2);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="hero-badge d-inline-flex mb-3" style="margin-bottom: 16px !important;">
+        <i class="fa fa-circle-info"></i> How It Works
+      </div>
+      <h2 style="font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px;">
+        Simple. Fast. <span style="color: var(--amber);">Digital.</span>
+      </h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="step-card fade-up">
+          <div class="step-num">1</div>
+          <div class="step-icon"><i class="fa fa-pen-to-square"></i></div>
+          <div class="step-title">Log Violation</div>
+          <p class="step-desc">Officer enters vehicle number, violation type, location, date, and fine amount. Record is instantly saved.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card fade-up delay-1">
+          <div class="step-num">2</div>
+          <div class="step-icon"><i class="fa fa-qrcode"></i></div>
+          <div class="step-title">QR Challan Generated</div>
+          <p class="step-desc">A unique digital challan with QR code is automatically generated and can be printed or shared.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card fade-up delay-2">
+          <div class="step-num">3</div>
+          <div class="step-icon"><i class="fa fa-mobile-screen"></i></div>
+          <div class="step-title">Track & Pay</div>
+          <p class="step-desc">Vehicle owner scans the QR to view violation details and payment status on any device instantly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

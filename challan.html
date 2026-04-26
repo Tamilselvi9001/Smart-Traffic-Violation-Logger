@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Challan #{{ v.id }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  body { background: #e2e8f0 !important; }
+  .main-nav { background: rgba(10,15,30,0.95) !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="challan-wrapper no-print" style="background: #e2e8f0; padding: 30px 20px;">
+  <!-- Top bar - no print -->
+  <div class="no-print" style="max-width: 700px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap 12px;">
+    <a href="{{ url_for('history') }}" class="btn-outline-amber" style="font-size: 13px; padding: 8px 16px;">
+      <i class="fa fa-arrow-left"></i> Back
+    </a>
+    <div class="d-flex gap-2">
+      {% if v.status == 'Unpaid' %}
+      <form method="POST" action="{{ url_for('mark_paid', violation_id=v.id) }}" class="mark-paid-form">
+        <button type="submit" class="btn-green-sm" style="padding: 9px 18px; font-size: 13px;">
+          <i class="fa fa-check"></i> Mark as Paid
+        </button>
+      </form>
+      {% endif %}
+      <button onclick="window.print()" class="btn-amber" style="padding: 9px 18px; font-size: 13px;">
+        <i class="fa fa-print"></i> Print Challan
+      </button>
+    </div>
+  </div>
+
+  <!-- Challan Document -->
+  <div class="challan-doc">
+    <!-- Header -->
+    <div class="challan-header">
+      <div class="challan-header-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <div class="challan-header-title">TrafficLog</div>
+          <div class="challan-header-sub">Traffic Violation Challan</div>
+        </div>
+      </div>
+      <div class="challan-id-badge">CHALLAN #{{ '%04d'|format(v.id) }}</div>
+    </div>
+
+    <!-- Body -->
+    <div class="challan-body">
+      <div class="challan-grid">
+        <!-- Details -->
+        <div>
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 14px;">
+            <i class="fa fa-circle-info me-1" style="color: #f59e0b;"></i> Violation Details
+          </div>
+          <table class="challan-table">
+            <tr>
+              <td class="ck">Vehicle No.</td>
+              <td class="cv" style="font-size: 1.2rem; font-weight: 800; letter-spacing: 2px; color: #0a0f1e;">{{ v.vehicle_number }}</td>
+            </tr>
+            <tr>
+              <td class="ck">Violation</td>
+              <td class="cv">{{ v.violation_type }}</td>
+            </tr>
+            <tr>
+              <td class="ck">Location</td>
+              <td class="cv">{{ v.location }}</td>
+            </tr>
+            <tr>
+              <td class="ck">Date</td>
+              <td class="cv">{{ v.date.strftime('%d %B %Y') }}</td>
+            </tr>
+            <tr>
+              <td class="ck">Issued On</td>
+              <td class="cv">{{ v.created_at.strftime('%d %B %Y, %I:%M %p') }}</td>
+            </tr>
+            <tr>
+              <td class="ck">Fine Amount</td>
+              <td class="cv" style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">₹{{ '{:,.0f}'.format(v.fine_amount) }}</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qr-box">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 14px; text-align: center;">
+            Scan to Check Status
+          </div>
+          {% if v.qr_code_path %}
+          <img src="{{ url_for('static', filename='qrcodes/challan_' + v.id|string + '.png') }}" alt="QR Code">
+          {% else %}
+          <div style="width: 120px; height: 120px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 2rem;">
+            <i class="fa fa-qrcode"></i>
+          </div>
+          {% endif %}
+          <p>challan #{{ v.id }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="challan-status-bar">
+      <div>
+        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Payment Status</div>
+        {% if v.status == 'Paid' %}
+        <div class="challan-status-paid"><i class="fa fa-circle-check"></i> PAID</div>
+        {% else %}
+        <div class="challan-status-unpaid"><i class="fa fa-clock"></i> UNPAID</div>
+        {% endif %}
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total Fine</div>
+        <div class="challan-fine-amt">₹{{ '{:,.0f}'.format(v.fine_amount) }}</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="challan-footer">
+      This is a computer-generated challan. | TrafficLog Digital Violation Management System
+    </div>
+  </div>
+</div>
+{% endblock %}
